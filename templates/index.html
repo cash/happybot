@@ -4,6 +4,7 @@
 
 {% block content %}
     <div class="container">
+        <div class="happybot_page">
         {%- with messages = get_flashed_messages(with_categories=True) %}
         {%- if messages %}
         <div class="row">
@@ -13,9 +14,11 @@
         </div>
         {%- endif %}
         {%- endwith %}
-        <p>text here</p>
+        <p>HappyBot will send you an encouraging message each day from the
+           person of your choice. Just fill out the form and click the
+           confirmation link sent to you.
+        </p>
+        {{ form|render_form(extra_classes=['happybot_form']) }}
+        </div>
     </div>
-    <div>{{ form|render_form() }}</div>
 {%- endblock %}
-
-
