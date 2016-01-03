@@ -1,4 +1,5 @@
 {% import "bootstrap/utils.html" as utils %}
+{% import "bootstrap/wtf.html" as wtf %}
 
 {%- extends "base.html" %}
 
@@ -18,7 +19,7 @@
            person of your choice. Just fill out the form and click the
            confirmation link sent to you.
         </p>
-        {{ form|render_form(extra_classes=['happybot_form']) }}
+        {{ wtf.quick_form(form, extra_classes='happybot_form') }}
         </div>
     </div>
 {%- endblock %}
