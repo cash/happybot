@@ -1,6 +1,7 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, flash
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import exc
 from forms import SignupForm
 import hashlib
 
@@ -42,11 +43,15 @@ def serve_index():
         code = create_hash(form.user_email.data, app.secret_key)
         user = User(form.user_name.data, form.user_email.data, form.sender_name.data, code)
         db.session.add(user)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except exc.SQLAlchemyError:
+            flash("Administrator of this site has not configured the database.", "error")
+            return render_template('index.html', form=form)
         # ToDo send email
         return render_template('message.html', msg='Thank you for using HappyBot. You should receive the confirmation email soon.')
-    else:
-        return render_template('index.html', form=form)
+
+    return render_template('index.html', form=form)
 
 @app.route('/confirm')
 def serve_confirm():
