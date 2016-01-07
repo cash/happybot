@@ -8,3 +8,8 @@ class SignupForm(Form):
     user_email = TextField('Your email address', validators=[DataRequired(), Email()])
     sender_name = TextField("Sender's name", validators=[DataRequired()])
     submit = SubmitField('Signup')
+
+
+class LoginForm(Form):
+    password = PasswordField('Admin password', validators=[DataRequired()])
+    submit = SubmitField('Login')

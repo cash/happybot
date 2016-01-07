@@ -1,8 +1,9 @@
-from flask import Flask, render_template, flash
+from flask import Flask, render_template, flash, redirect, url_for, request
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, login_required, login_user
 from sqlalchemy import exc
-from forms import SignupForm
+from forms import SignupForm, LoginForm
 import hashlib
 
 
@@ -10,6 +11,9 @@ app = Flask(__name__)
 app.config.from_pyfile('happybot.cfg')
 Bootstrap(app)
 db = SQLAlchemy(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login"
 
 
 class User(db.Model):
@@ -31,8 +35,33 @@ class User(db.Model):
         return "<User {0} with email {1}>".format(self.user_name, self.user_email)
 
 
+class Admin(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    password = db.Column(db.String(64))
+
+    def __init__(self, password):
+        self.password = password
+
+    def is_authenticated(self):
+        return True
+
+    def is_active(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return unicode(self.id)
+
+
 def create_hash(email, secret):
     return hashlib.md5(email + secret).hexdigest()
+
+
+def hash_password(password, salt):
+    return hashlib.sha256(password + salt).hexdigest()
+
 
 @app.route('/', methods=['GET', 'POST'])
 def serve_index():
@@ -58,9 +87,27 @@ def serve_confirm():
     return render_template('message.html', msg='Subscription confirmed')
 
 @app.route('/admin')
+@login_required
 def serve_admin():
     users = User.query.all()
     return render_template('admin.html', users=users)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return Admin.query.get(int(user_id))
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        pass_hash = hash_password(form.password.data, app.secret_key)
+        admin = Admin.query.filter_by(password=pass_hash).first()
+        if admin:
+            login_user(admin)
+            redirect(request.args.get('next') or url_for('admin'))
+        else:
+            flash("Incorrect password.", "error")
+    return render_template('login.html', form=form)
 
 if __name__ == '__main__':
     app.run()
