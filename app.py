@@ -7,11 +7,9 @@ import hashlib
 
 
 app = Flask(__name__)
+app.config.from_pyfile('happybot.cfg')
 Bootstrap(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-app.secret_key = 's3cr3t'
 
 
 class User(db.Model):
@@ -64,4 +62,4 @@ def serve_admin():
     return render_template('admin.html', users=users)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
