@@ -38,7 +38,9 @@ def create_hash(email, secret):
 def serve_index():
     form = SignupForm()
     if form.validate_on_submit():
-        code = create_hash(form.user_email.data, app.secret_key)
+        email = form.user_email.data
+        code = create_hash(email, app.secret_key)
+        User.query.filter_by(user_email=email).delete()
         user = User(form.user_name.data, form.user_email.data, form.sender_name.data, code)
         db.session.add(user)
         try:
@@ -58,7 +60,6 @@ def serve_confirm():
 @app.route('/admin')
 def serve_admin():
     users = User.query.all()
-    print users
     return render_template('admin.html', users=users)
 
 if __name__ == '__main__':
