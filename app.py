@@ -2,6 +2,8 @@ from flask import Flask, render_template, flash, redirect, url_for, request
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_required, login_user
+from flask_mail import Mail, Message
+from smtplib import SMTPException
 from sqlalchemy import exc
 from forms import SignupForm, LoginForm
 import hashlib
@@ -10,6 +12,7 @@ import hashlib
 app = Flask(__name__)
 app.config.from_pyfile('happybot.cfg')
 Bootstrap(app)
+mail = Mail(app)
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -70,21 +73,34 @@ def serve_index():
         email = form.user_email.data
         code = create_hash(email, app.secret_key)
         User.query.filter_by(user_email=email).delete()
-        user = User(form.user_name.data, form.user_email.data, form.sender_name.data, code)
+        user = User(form.user_name.data, email, form.sender_name.data, code)
         db.session.add(user)
         try:
             db.session.commit()
         except exc.SQLAlchemyError:
             flash("Administrator of this site has not configured the database.", "error")
             return render_template('index.html', form=form)
-        # ToDo send email
+        msg = Message("HappyBot subscription confirmation", recipients=[email])
+        msg.body = "Please confirm your subscription by visiting: http://localhost:5000/confirm/" + code
+        try:
+            mail.send(msg)
+        except SMTPException, e:
+            print(e.message)
         return render_template('message.html', msg='Thank you for using HappyBot. You should receive the confirmation email soon.')
 
     return render_template('index.html', form=form)
 
-@app.route('/confirm')
-def serve_confirm():
-    return render_template('message.html', msg='Subscription confirmed')
+@app.route('/confirm/<code>')
+def serve_confirm(code):
+    user = User.query.filter_by(confirmation_code=code).first()
+    if user:
+        user.confirmed = True
+        db.session.commit()
+        msg = "Subscription confirmed"
+    else:
+        msg = "Unknown subscription"
+
+    return render_template('message.html', msg=msg)
 
 @app.route('/admin')
 @login_required
