@@ -7,10 +7,11 @@ from sqlalchemy import exc
 from .forms import SignupForm, LoginForm
 from .models import User, Admin
 from .helpers import *
+from .text import Text
 
 
 @app.route('/', methods=['GET', 'POST'])
-def serve_index():
+def index():
     form = SignupForm()
     if form.validate_on_submit():
         email = form.user_email.data
@@ -24,33 +25,34 @@ def serve_index():
             db.session.commit()
         except exc.SQLAlchemyError:
             app.logger.error("Database is not installed")
-            flash("Administrator of this site has not configured the database.", "error")
+            flash(Text.error_no_db, "error")
             return render_template('index.html', form=form)
-        msg = Message("HappyBot subscription confirmation", recipients=[email])
-        msg.body = "Please confirm your subscription by visiting: http://localhost:5000/confirm/" + code
+        msg = Message(Text.confirm_subject, recipients=[email])
+        url = url_for('confirm', code=code, _external=True)
+        msg.body = Text.confirm_body.format(url)
         try:
             mail.send(msg)
         except SMTPException, e:
             app.logger.error("Sending confirmation mail failed with '" + e.message + "'")
-        return render_template('message.html', msg='Thank you for using HappyBot. You should receive the confirmation email soon.')
+        return render_template('message.html', msg=Text.msg_submit)
 
     return render_template('index.html', form=form)
 
 @app.route('/confirm/<code>')
-def serve_confirm(code):
+def confirm(code):
     user = User.query.filter_by(confirmation_code=code).first()
     if user:
         user.confirmed = True
         db.session.commit()
-        msg = "Subscription confirmed"
+        msg = Text.msg_confirmed
     else:
-        msg = "Unknown subscription"
+        msg = Text.msg_not_confirmed
 
     return render_template('message.html', msg=msg)
 
 @app.route('/admin')
 @login_required
-def serve_admin():
+def admin():
     users = User.query.all()
     return render_template('admin.html', users=users)
 
@@ -68,5 +70,5 @@ def login():
             login_user(admin)
             redirect(request.args.get('next') or url_for('admin'))
         else:
-            flash("Incorrect password.", "error")
+            flash(Text.error_password, "error")
     return render_template('login.html', form=form)
