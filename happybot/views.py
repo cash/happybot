@@ -15,12 +15,15 @@ def serve_index():
     if form.validate_on_submit():
         email = form.user_email.data
         code = create_hash(email, app.secret_key)
+        app.logger.info("Adding subscription for " + email)
+
         User.query.filter_by(user_email=email).delete()
         user = User(form.user_name.data, email, form.sender_name.data, code)
         db.session.add(user)
         try:
             db.session.commit()
         except exc.SQLAlchemyError:
+            app.logger.error("Database is not installed")
             flash("Administrator of this site has not configured the database.", "error")
             return render_template('index.html', form=form)
         msg = Message("HappyBot subscription confirmation", recipients=[email])
@@ -28,7 +31,7 @@ def serve_index():
         try:
             mail.send(msg)
         except SMTPException, e:
-            print(e.message)
+            app.logger.error("Sending confirmation mail failed with '" + e.message + "'")
         return render_template('message.html', msg='Thank you for using HappyBot. You should receive the confirmation email soon.')
 
     return render_template('index.html', form=form)
