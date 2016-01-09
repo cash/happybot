@@ -1,5 +1,7 @@
 import sys
-from app import db, Admin, app, hash_password
+from happybot import db, app
+from happybot.models import Admin
+from happybot.helpers import hash_password
 
 if len(sys.argv) != 2:
     print('Usage: python install.py [password]')
