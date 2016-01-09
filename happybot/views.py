@@ -50,6 +50,11 @@ def confirm(code):
 
     return render_template('message.html', msg=msg)
 
+@app.route('/unsubscribe/<code>')
+def unsubscribe(code):
+    User.query.filter_by(confirmation_code=code).delete()
+    return render_template('message.html', msg=Text.msg_unsubscribed)
+
 @app.route('/admin')
 @login_required
 def admin():
