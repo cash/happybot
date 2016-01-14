@@ -6,6 +6,7 @@ from flask_bootstrap import Bootstrap
 import os
 import logging
 from logging.handlers import RotatingFileHandler
+from celery import Celery
 
 
 app = Flask(__name__)
@@ -21,5 +22,19 @@ file_handler = RotatingFileHandler(app.config['LOG_FILE'], 'a', 1 * 1024 * 1024,
 file_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s: %(message)s'))
 app.logger.addHandler(file_handler)
 app.logger.setLevel(logging.getLevelName(app.config['LOG_LEVEL']))
+
+def make_celery(app):
+    celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+    celery.conf.update(app.config)
+    TaskBase = celery.Task
+    class ContextTask(TaskBase):
+        abstract = True
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return TaskBase.__call__(self, *args, **kwargs)
+    celery.Task = ContextTask
+    return celery
+
+jobs = make_celery(app)
 
 from happybot import views

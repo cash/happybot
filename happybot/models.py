@@ -19,6 +19,16 @@ class User(db.Model):
     def __repr__(self):
         return "<User {0} with email {1}>".format(self.user_name, self.user_email)
 
+    def get_dict(self):
+        # this is to support passing the data to async tasks
+        return {
+            'user_name': self.user_name,
+            'user_email': self.user_email,
+            'sender_name': self.sender_name,
+            'confirmation_code': self.confirmation_code,
+            'confirmed': self.confirmed
+        }
+
 
 class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)

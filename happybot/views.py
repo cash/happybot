@@ -1,13 +1,12 @@
-from happybot import app, db, login_manager, mail
-from flask import render_template, flash, redirect, url_for, request
+from happybot import app, db, login_manager
+from flask import render_template, flash, redirect, request
 from flask_login import login_required, login_user
-from flask_mail import Message
-from smtplib import SMTPException
 from sqlalchemy import exc
 from .forms import SignupForm, LoginForm
 from .models import User, Admin
 from .helpers import *
 from .text import Text
+from .tasks import *
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -27,13 +26,7 @@ def index():
             app.logger.error("Database is not installed")
             flash(Text.error_no_db, "error")
             return render_template('index.html', form=form)
-        msg = Message(Text.confirm_subject, recipients=[email])
-        url = url_for('confirm', code=code, _external=True)
-        msg.body = Text.confirm_body.format(url)
-        try:
-            mail.send(msg)
-        except SMTPException, e:
-            app.logger.error("Sending confirmation mail failed with '" + e.message + "'")
+        send_confirm_email.delay(user.get_dict())
         return render_template('message.html', msg=Text.msg_submit)
 
     return render_template('index.html', form=form)
