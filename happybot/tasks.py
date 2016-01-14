@@ -10,8 +10,9 @@ from .text import Text
 def send_confirm_email(user_data):
     with app.app_context():
         msg = Message(Text.confirm_subject, recipients=[user_data['user_email']])
-        url = url_for('confirm', code=user_data['confirmation_code'], _external=True)
-        msg.body = Text.confirm_body.format(url)
+        confirm_url = url_for('confirm', code=user_data['confirmation_code'], _external=True)
+        home_url = url_for('index', _external=True)
+        msg.html = Text.confirm_body.format(user_data['sender_name'], confirm_url, home_url)
         try:
             mail.send(msg)
         except SMTPException, e:
