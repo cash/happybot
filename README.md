@@ -18,4 +18,5 @@ Installing
 Running
 ---------------
 A non-production ready web server is built into Flask and can be run with `python run.py`. The celery worker
-also must be started with `celery worker -A happybot.jobs`.
+must be started with `celery worker -A happybot.jobs` and a celery beat scheduler started with
+`celery -A happybot.jobs beat`.

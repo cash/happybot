@@ -3,3 +3,5 @@
 *~
 happybot.cfg
 *.log
+celerybeat-schedule
+celerybeat.pid

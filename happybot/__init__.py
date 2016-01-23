@@ -7,6 +7,7 @@ import os
 import logging
 from logging.handlers import RotatingFileHandler
 from celery import Celery
+from celery.schedules import crontab
 
 
 app = Flask(__name__)
@@ -23,18 +24,19 @@ file_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s: %(messag
 app.logger.addHandler(file_handler)
 app.logger.setLevel(logging.getLevelName(app.config['LOG_LEVEL']))
 
-def make_celery(app):
-    celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
-    celery.conf.update(app.config)
-    TaskBase = celery.Task
-    class ContextTask(TaskBase):
-        abstract = True
-        def __call__(self, *args, **kwargs):
-            with app.app_context():
-                return TaskBase.__call__(self, *args, **kwargs)
-    celery.Task = ContextTask
-    return celery
-
-jobs = make_celery(app)
+jobs = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+jobs.conf.update(app.config)
+jobs.conf.update({
+    'CELERYBEAT_SCHEDULE': {
+        'once_a_day': {
+            'task': 'happybot.tasks.schedule_messages',
+            'schedule': crontab(hour=0, minute=0)
+        },
+        'sender': {
+            'task': 'happybot.tasks.send_messages',
+            'schedule': crontab(minute='*/5')
+        }
+    }
+})
 
 from happybot import views

@@ -48,3 +48,13 @@ class Admin(db.Model):
 
     def get_id(self):
         return unicode(self.id)
+
+
+class MessageSchedule(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, unique=True)
+    msg_time = db.Column(db.Time, index=True)
+
+    def __init__(self, user_id, scheduled_time):
+        self.user_id = user_id
+        self.msg_time = scheduled_time
