@@ -29,11 +29,11 @@ jobs.conf.update(app.config)
 jobs.conf.update({
     'CELERYBEAT_SCHEDULE': {
         'once_a_day': {
-            'task': 'happybot.tasks.schedule_messages',
+            'task': 'happybot.tasks.schedule_happy_messages',
             'schedule': crontab(hour=0, minute=0)
         },
         'sender': {
-            'task': 'happybot.tasks.send_messages',
+            'task': 'happybot.tasks.send_happy_messages',
             'schedule': crontab(minute='*/5')
         }
     }

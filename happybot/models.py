@@ -1,11 +1,12 @@
 from happybot import db
 
 
-class User(db.Model):
+class Subscription(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_name = db.Column(db.String(80))
     user_email = db.Column(db.String(120), index=True, unique=True)
     sender_name = db.Column(db.String(80))
+    personality = db.Column(db.String(80))
     confirmation_code = db.Column(db.String(32))
     confirmed = db.Column(db.Boolean)
 
@@ -13,11 +14,12 @@ class User(db.Model):
         self.user_name = user_name
         self.user_email = email
         self.sender_name = sender_name
+        self.personality = 'happybot'
         self.confirmation_code = code
         self.confirmed = False
 
     def __repr__(self):
-        return "<User {0} with email {1}>".format(self.user_name, self.user_email)
+        return "<Subscription {0} with email {1}>".format(self.user_name, self.user_email)
 
     def get_dict(self):
         # this is to support passing the data to async tasks
@@ -25,6 +27,7 @@ class User(db.Model):
             'user_name': self.user_name,
             'user_email': self.user_email,
             'sender_name': self.sender_name,
+            'personality': self.personality,
             'confirmation_code': self.confirmation_code,
             'confirmed': self.confirmed
         }

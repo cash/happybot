@@ -3,7 +3,7 @@ from flask import render_template, flash, redirect, request
 from flask_login import login_required, login_user
 from sqlalchemy import exc
 from .forms import SignupForm, LoginForm
-from .models import User, Admin
+from .models import Subscription, Admin
 from .helpers import *
 from .text import Text
 from .tasks import *
@@ -17,8 +17,8 @@ def index():
         code = create_hash(email, app.secret_key)
         app.logger.info("Adding subscription for " + email)
 
-        User.query.filter_by(user_email=email).delete()
-        user = User(form.user_name.data, email, form.sender_name.data, code)
+        Subscription.query.filter_by(user_email=email).delete()
+        user = Subscription(form.user_name.data, email, form.sender_name.data, code)
         db.session.add(user)
         try:
             db.session.commit()
@@ -27,13 +27,14 @@ def index():
             flash(Text.error_no_db, "error")
             return render_template('index.html', form=form)
         send_confirm_email.delay(user.get_dict())
-        return render_template('message.html', msg=Text.msg_submit)
+        return render_template('status.html', msg=Text.msg_submit)
 
     return render_template('index.html', form=form)
 
 @app.route('/confirm/<code>')
 def confirm(code):
-    user = User.query.filter_by(confirmation_code=code).first()
+    app.logger.info("Confirming subscription with code " + code)
+    user = Subscription.query.filter_by(confirmation_code=code).first()
     if user:
         user.confirmed = True
         db.session.commit()
@@ -41,17 +42,19 @@ def confirm(code):
     else:
         msg = Text.msg_not_confirmed
 
-    return render_template('message.html', msg=msg)
+    return render_template('status.html', msg=msg)
 
 @app.route('/unsubscribe/<code>')
 def unsubscribe(code):
-    User.query.filter_by(confirmation_code=code).delete()
-    return render_template('message.html', msg=Text.msg_unsubscribed)
+    app.logger.info("Unsubscribing user with code " + code)
+    Subscription.query.filter_by(confirmation_code=code).delete()
+    db.session.commit()
+    return render_template('status.html', msg=Text.msg_unsubscribed)
 
 @app.route('/admin')
 @login_required
 def admin():
-    users = User.query.all()
+    users = Subscription.query.all()
     return render_template('admin.html', users=users)
 
 @login_manager.user_loader

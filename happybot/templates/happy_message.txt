@@ -1,0 +1,8 @@
+{{ user_name }},
+
+{{ message }}
+
+{{ sender_name }}
+
+
+To no longer receive these messages, visit this link: {{ unsubscribe_url }}
