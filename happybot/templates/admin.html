@@ -7,14 +7,24 @@
             <thead>
                 <tr><th>User name</th><th>Email</th><th>Sender name</th><th>Confirmed</th></tr>
             </thead>
-            {% for user in users %}
+            {% for sub in subscriptions.items %}
             <tr>
-                <td>{{ user.user_name }}</td>
-                <td>{{ user.user_email }}</td>
-                <td>{{ user.sender_name }}</td>
-                <td>{{ user.confirmed }}</td>
+                <td>{{ sub.user_name }}</td>
+                <td>{{ sub.user_email }}</td>
+                <td>{{ sub.sender_name }}</td>
+                <td>{{ sub.confirmed }}</td>
             </tr>
             {% endfor %}
         </table>
+        {% if subscriptions.has_prev %}
+            <a href="{{ url_for('admin', page=subscriptions.prev_num) }}">&lt;&lt; Newer</a>
+        {% else %}
+            &lt;&lt; Newer
+        {% endif %} |
+        {% if subscriptions.has_next %}
+            <a href="{{ url_for('admin', page=subscriptions.next_num) }}">Older &gt;&gt;</a>
+        {% else %}
+            Older &gt;&gt;
+        {% endif %}
     </div>
 {%- endblock %}

@@ -18,15 +18,15 @@ def index():
         app.logger.info("Adding subscription for " + email)
 
         Subscription.query.filter_by(user_email=email).delete()
-        user = Subscription(form.user_name.data, email, form.sender_name.data, code)
-        db.session.add(user)
+        subscription = Subscription(form.user_name.data, email, form.sender_name.data, code)
+        db.session.add(subscription)
         try:
             db.session.commit()
         except exc.SQLAlchemyError:
             app.logger.error("Database is not installed")
             flash(Text.error_no_db, "error")
             return render_template('index.html', form=form)
-        send_confirm_email.delay(user.get_dict())
+        send_confirm_email.delay(subscription.get_dict())
         return render_template('status.html', msg=Text.msg_submit)
 
     return render_template('index.html', form=form)
@@ -34,9 +34,9 @@ def index():
 @app.route('/confirm/<code>')
 def confirm(code):
     app.logger.info("Confirming subscription with code " + code)
-    user = Subscription.query.filter_by(confirmation_code=code).first()
-    if user:
-        user.confirmed = True
+    subscription = Subscription.query.filter_by(confirmation_code=code).first()
+    if subscription:
+        subscription.confirmed = True
         db.session.commit()
         msg = Text.msg_confirmed
     else:
@@ -52,10 +52,11 @@ def unsubscribe(code):
     return render_template('status.html', msg=Text.msg_unsubscribed)
 
 @app.route('/admin')
+@app.route('/admin/<int:page>')
 @login_required
-def admin():
-    users = Subscription.query.all()
-    return render_template('admin.html', users=users)
+def admin(page=1):
+    subscriptions = Subscription.query.paginate(page, 25, False)
+    return render_template('admin.html', subscriptions=subscriptions)
 
 @login_manager.user_loader
 def load_user(user_id):
