@@ -1,6 +1,6 @@
 from happybot import app, mail, db
 import celery
-from flask import url_for
+from flask import url_for, render_template
 from flask_mail import Message
 from smtplib import SMTPException
 import datetime
@@ -15,7 +15,10 @@ def send_confirm_email(user_data):
         msg = Message(Text.confirm_subject, recipients=[user_data['user_email']])
         confirm_url = url_for('confirm', code=user_data['confirmation_code'], _external=True)
         home_url = url_for('index', _external=True)
-        msg.html = Text.confirm_body.format(user_data['sender_name'], confirm_url, home_url)
+        msg.html = render_template('confirm_email.html', sender_name=user_data['sender_name'], confirm_url=confirm_url,
+                                   home_url=home_url)
+        msg.body = render_template('confirm_email.txt', sender_name=user_data['sender_name'], confirm_url=confirm_url,
+                                   home_url=home_url)
         try:
             mail.send(msg)
         except SMTPException, e:

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+# Email bodies are in the template directory
 
 class Text(object):
     msg_submit = 'Thank you for using HappyBot. You should receive the confirmation email soon.'
@@ -8,15 +9,6 @@ class Text(object):
     msg_unsubscribed = 'You have been unsubscribed.'
 
     confirm_subject = 'HappyBot confirmation'
-    confirm_body = \
-"""
-You have signed up to receive a message from {0} every day. Please confirm your subscription by clicking
-<a href="{1}">this link</a>.
-
-If you did not sign up, please ignore this message.
-
-<a href="{2}">HappyBot</a>: making people happy one message at a time.
-"""
 
     error_no_db = 'Administrator of this site has not configured the database.'
     error_password = 'Incorrect password.'

@@ -1,0 +1,7 @@
+You have signed up to receive a message from {{ sender_name }} every day.
+Please confirm your subscription by visiting this link: {{ confirm_url }}
+
+If you did not sign up, please ignore this message.
+
+HappyBot: making people happy one message at a time.
+{{ home_url }}
