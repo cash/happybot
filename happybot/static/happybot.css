@@ -1,3 +1,16 @@
+.happybot-image {
+  background: url('robot.png') no-repeat;
+}
+.happybot-image > .page-header {
+  padding-left: 80px;
+}
+.happybot-image h1 {
+  font-size: 64px;
+}
+.page-header a, .page-header a:hover {
+  color: #333;
+  text-decoration: none;
+}
 .happybot_form {
   max-width: 360px;
 }
