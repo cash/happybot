@@ -15,11 +15,22 @@
         </div>
         {%- endif %}
         {%- endwith %}
-        <p>HappyBot will send you an encouraging message each day from the
+        <blockquote>
+          <p>[Your name here],</p>
+          <p>Where is your cape? Because you are my hero.</p>
+          <footer>[Colleague's name here]</footer>
+        </blockquote>
+        <p class="form-group">Want some encouragement from a boss, coworker or friend but don't want
+           to deal with the messiness of real people? Let HappyBot
+           send you a positive note each day from the
            person of your choice. Just fill out the form and click the
            confirmation link sent to you.
         </p>
+        <div class="panel panel-default">
+            <div class="panel-body">
         {{ wtf.quick_form(form, extra_classes='happybot_form') }}
+            </div>
+        </div>
         </div>
     </div>
 {%- endblock %}
