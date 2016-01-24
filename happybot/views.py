@@ -52,11 +52,19 @@ def unsubscribe(code):
     return render_template('status.html', msg=Text.msg_unsubscribed)
 
 @app.route('/admin')
-@app.route('/admin/<int:page>')
+@app.route('/admin/subs')
+@app.route('/admin/subs/<int:page>')
 @login_required
-def admin(page=1):
+def admin_subs(page=1):
     subscriptions = Subscription.query.paginate(page, 25, False)
     return render_template('admin.html', subscriptions=subscriptions)
+
+@app.route('/admin/schedule')
+@app.route('/admin/schedule/<int:page>')
+@login_required
+def admin_schedule(page=1):
+    schedule = MessageSchedule.query.paginate(page, 25, False)
+    return render_template('schedule.html', schedule=schedule)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -70,7 +78,7 @@ def login():
         admin = Admin.query.filter_by(password=pass_hash).first()
         if admin:
             login_user(admin)
-            redirect(request.args.get('next') or url_for('admin'))
+            return redirect(request.args.get('next') or url_for('admin'))
         else:
             flash(Text.error_password, "error")
     return render_template('login.html', form=form)

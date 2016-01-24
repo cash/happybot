@@ -2,7 +2,7 @@
 
 {% block content %}
     <div class="container">
-        <p>Admin page</p>
+        <h2>Subscriptions</h2>
         <table class="table table-striped table-bordered">
             <thead>
                 <tr><th>User name</th><th>Email</th><th>Sender name</th><th>Confirmed</th></tr>
@@ -17,12 +17,12 @@
             {% endfor %}
         </table>
         {% if subscriptions.has_prev %}
-            <a href="{{ url_for('admin', page=subscriptions.prev_num) }}">&lt;&lt; Newer</a>
+            <a href="{{ url_for('admin_subs', page=subscriptions.prev_num) }}">&lt;&lt; Newer</a>
         {% else %}
             &lt;&lt; Newer
         {% endif %} |
         {% if subscriptions.has_next %}
-            <a href="{{ url_for('admin', page=subscriptions.next_num) }}">Older &gt;&gt;</a>
+            <a href="{{ url_for('admin_subs', page=subscriptions.next_num) }}">Older &gt;&gt;</a>
         {% else %}
             Older &gt;&gt;
         {% endif %}

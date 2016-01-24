@@ -1,0 +1,28 @@
+{%- extends "base.html" %}
+
+{% block content %}
+    <div class="container">
+        <h2>Schedule</h2>
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr><th>User ID</th><th>Time</th></tr>
+            </thead>
+            {% for entry in schedule.items %}
+            <tr>
+                <td>{{ entry.user_id }}</td>
+                <td>{{ entry.msg_time }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% if schedule.has_prev %}
+            <a href="{{ url_for('admin_schedule', page=schedule.prev_num) }}">&lt;&lt; Previous</a>
+        {% else %}
+            &lt;&lt; Previous
+        {% endif %} |
+        {% if schedule.has_next %}
+            <a href="{{ url_for('admin_schedule', page=schedule.next_num) }}">Next &gt;&gt;</a>
+        {% else %}
+            Next &gt;&gt;
+        {% endif %}
+    </div>
+{%- endblock %}
