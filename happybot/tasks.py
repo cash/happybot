@@ -13,7 +13,8 @@ from .helpers import *
 def send_confirm_email(user_data):
     with app.app_context():
         app.logger.info("Sending confirmation to " + user_data['user_email'])
-        msg = Message(Text.confirm_subject, recipients=[user_data['user_email']])
+        sender = ("HappyBot", app.extensions['mail'].default_sender)
+        msg = Message(Text.confirm_subject, sender=sender, recipients=[user_data['user_email']])
         confirm_url = url_for('confirm', code=user_data['confirmation_code'], _external=True)
         home_url = url_for('index', _external=True)
         msg.html = render_template('confirm_email.html', sender_name=user_data['sender_name'], confirm_url=confirm_url,
@@ -31,7 +32,7 @@ def schedule_happy_messages():
         app.logger.info("Scheduling happy messages")
         count = 0
         MessageSchedule.query.delete()
-        for subscription in Subscription.query.all():
+        for subscription in Subscription.query.filter_by(confirmed=True):
             time = create_schedule_time(app.config['HAPPYBOT_START'], app.config['HAPPYBOT_STOP'])
             entry = MessageSchedule(subscription.id, time)
             db.session.add(entry)
@@ -48,7 +49,8 @@ def send_happy_messages():
         for entry in MessageSchedule.query.filter(MessageSchedule.msg_time < datetime.datetime.now().time()).all():
             subscription = Subscription.query.filter_by(id=entry.user_id).first()
             subject = Text.message_subject.format(subscription.user_name)
-            msg = Message(subject, recipients=[subscription.user_email])
+            sender = (subscription.sender_name, app.extensions['mail'].default_sender)
+            msg = Message(subject, sender=sender, recipients=[subscription.user_email])
             unsub_url = url_for('unsubscribe', code=subscription.confirmation_code, _external=True)
             home_url = url_for('index', _external=True)
             message = personality.get_message()
