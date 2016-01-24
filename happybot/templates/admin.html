@@ -2,29 +2,17 @@
 
 {% block content %}
     <div class="container">
-        <h2>Subscriptions</h2>
-        <table class="table table-striped table-bordered">
-            <thead>
-                <tr><th>User name</th><th>Email</th><th>Sender name</th><th>Confirmed</th></tr>
-            </thead>
-            {% for sub in subscriptions.items %}
-            <tr>
-                <td>{{ sub.user_name }}</td>
-                <td>{{ sub.user_email }}</td>
-                <td>{{ sub.sender_name }}</td>
-                <td>{{ sub.confirmed }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-        {% if subscriptions.has_prev %}
-            <a href="{{ url_for('admin_subs', page=subscriptions.prev_num) }}">&lt;&lt; Newer</a>
-        {% else %}
-            &lt;&lt; Newer
-        {% endif %} |
-        {% if subscriptions.has_next %}
-            <a href="{{ url_for('admin_subs', page=subscriptions.next_num) }}">Older &gt;&gt;</a>
-        {% else %}
-            Older &gt;&gt;
-        {% endif %}
+      <nav class="navbar navbar-default">
+        <div class="container-fluid">
+          <ul class="nav navbar-nav">
+            <li><a href="{{ url_for('admin_subs') }}">Subscriptions</a></li>
+            <li><a href="{{ url_for('admin_schedule') }}">Schedule</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+          </ul>
+        </div>
+      </nav>
+{% block admin_content %}{%- endblock %}
     </div>
 {%- endblock %}

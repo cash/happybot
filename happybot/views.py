@@ -1,6 +1,6 @@
 from happybot import app, db, login_manager
 from flask import render_template, flash, redirect, request
-from flask_login import login_required, login_user
+from flask_login import login_required, login_user, logout_user
 from sqlalchemy import exc
 from .forms import SignupForm, LoginForm
 from .models import Subscription, Admin
@@ -56,8 +56,8 @@ def unsubscribe(code):
 @app.route('/admin/subs/<int:page>')
 @login_required
 def admin_subs(page=1):
-    subscriptions = Subscription.query.paginate(page, 25, False)
-    return render_template('admin.html', subscriptions=subscriptions)
+    subscriptions = Subscription.query.order_by(db.desc(Subscription.id)).paginate(page, 25, False)
+    return render_template('subscriptions.html', subscriptions=subscriptions)
 
 @app.route('/admin/schedule')
 @app.route('/admin/schedule/<int:page>')
@@ -82,3 +82,8 @@ def login():
         else:
             flash(Text.error_password, "error")
     return render_template('login.html', form=form)
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('index'))

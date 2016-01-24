@@ -1,15 +1,15 @@
-{%- extends "base.html" %}
+{%- extends "admin.html" %}
 
-{% block content %}
-    <div class="container">
+{% block admin_content %}
         <h2>Schedule</h2>
         <table class="table table-striped table-bordered">
             <thead>
-                <tr><th>User ID</th><th>Time</th></tr>
+                <tr><th>Subscription ID</th><th>User Name</th><th>Time</th></tr>
             </thead>
             {% for entry in schedule.items %}
             <tr>
                 <td>{{ entry.user_id }}</td>
+                <td>{{ entry.subscription.user_name }}</td>
                 <td>{{ entry.msg_time }}</td>
             </tr>
             {% endfor %}
@@ -24,5 +24,4 @@
         {% else %}
             Next &gt;&gt;
         {% endif %}
-    </div>
 {%- endblock %}

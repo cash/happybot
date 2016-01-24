@@ -2,6 +2,7 @@ from happybot import db
 
 
 class Subscription(db.Model):
+    __tablename__ = 'subscriptions'
     id = db.Column(db.Integer, primary_key=True)
     user_name = db.Column(db.String(80))
     user_email = db.Column(db.String(120), index=True, unique=True)
@@ -33,7 +34,21 @@ class Subscription(db.Model):
         }
 
 
+class MessageSchedule(db.Model):
+    __tablename__ = 'schedule'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('subscriptions.id'), unique=True, index=True)
+    msg_time = db.Column(db.Time, index=True)
+
+    subscription = db.relationship('Subscription', backref='subscriptions')
+
+    def __init__(self, user_id, scheduled_time):
+        self.user_id = user_id
+        self.msg_time = scheduled_time
+
+
 class Admin(db.Model):
+    __tablename__ = 'admin'
     id = db.Column(db.Integer, primary_key=True)
     password = db.Column(db.String(64))
 
@@ -51,13 +66,3 @@ class Admin(db.Model):
 
     def get_id(self):
         return unicode(self.id)
-
-
-class MessageSchedule(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, unique=True)
-    msg_time = db.Column(db.Time, index=True)
-
-    def __init__(self, user_id, scheduled_time):
-        self.user_id = user_id
-        self.msg_time = scheduled_time
